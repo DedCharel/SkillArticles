@@ -3,8 +3,8 @@ package ru.skillbranch.skillarticles.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
-import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
@@ -75,6 +75,7 @@ class RootActivity : AppCompatActivity() {
                 }
             }
         }
+        snackbar.show()
     }
 
     private fun setupSubmenu() {
