@@ -1,6 +1,8 @@
 package ru.skillbranch.skillarticles.viewmodels
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
@@ -120,6 +122,9 @@ class ArticleViewModel(private val articleId:String) : BaseViewModel<ArticleStat
     override fun handleSearch(query: String?) {
         updateState { it.copy(searchQuery = query) }
     }
+
+
+
 }
 data class ArticleState(
     val isAuth: Boolean = false, //пользователь авторизирован

@@ -2,10 +2,12 @@ package ru.skillbranch.skillarticles.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
+import android.view.Menu
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
@@ -47,6 +49,38 @@ class RootActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val currentState = viewModel.currentState
+        menuInflater.inflate(R.menu.menu_search, menu)
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.inputType = InputType.TYPE_CLASS_TEXT
+
+        searchView.queryHint = "Введите строку поиска"
+        if (!currentState.searchQuery.isNullOrEmpty() || currentState.isSearch ) {
+            searchItem.expandActionView()
+            if (!currentState.searchQuery.isNullOrEmpty())
+                searchView.setQuery(currentState.searchQuery, false)
+            searchView.requestFocus()
+        }
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String): Boolean {
+                viewModel.handleSearch(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                viewModel.handleSearch(newText)
+                return true
+            }
+        })
+
+        searchView.setOnQueryTextFocusChangeListener{ view, isSearch ->
+            viewModel.handleSearchMode(isSearch)
+        }
+
+        return super.onCreateOptionsMenu(menu)
+    }
     private fun renderNotification(notify: Notify) {
         val snackbar = Snackbar.make(coordinator_container, notify.message, Snackbar.LENGTH_LONG)
             .setAnchorView(bottombar)
