@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
@@ -13,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.layout_bottombar.*
 import kotlinx.android.synthetic.main.layout_submenu.*
+import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
@@ -22,6 +24,8 @@ import ru.skillbranch.skillarticles.viewmodels.ViewModelFactory
 
 class RootActivity : AppCompatActivity() {
     private lateinit var viewModel: ArticleViewModel
+    private var searchQuery: String? = null
+    private var isSearching = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +47,8 @@ class RootActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
         viewModel.observeState(this){
             renderUi(it)
+
+
         }
         viewModel.observeNotifications(this){
             renderNotification(it)
@@ -52,17 +58,29 @@ class RootActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val currentState = viewModel.currentState
         menuInflater.inflate(R.menu.menu_search, menu)
-        val searchItem = menu?.findItem(R.id.action_search)
-        val searchView = searchItem?.actionView as SearchView
-        searchView.inputType = InputType.TYPE_CLASS_TEXT
+        val menuItem = menu?.findItem(R.id.action_search)
+        val searchView = menuItem?.actionView as SearchView
+         searchView.queryHint = "Введите строку поиска"
 
-        searchView.queryHint = "Введите строку поиска"
         if (!currentState.searchQuery.isNullOrEmpty() || currentState.isSearch ) {
-            searchItem.expandActionView()
+            menuItem.expandActionView()
             if (!currentState.searchQuery.isNullOrEmpty())
                 searchView.setQuery(currentState.searchQuery, false)
             searchView.requestFocus()
         }
+
+        menuItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener{
+            override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                viewModel.handleSearchMode(true)
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                viewModel.handleSearchMode(false)
+                return true
+            }
+
+        })
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String): Boolean {
                 viewModel.handleSearch(query)
@@ -123,9 +141,27 @@ class RootActivity : AppCompatActivity() {
         btn_bookmark.setOnClickListener { viewModel.handleBookmark() }
         btn_share.setOnClickListener { viewModel.handleShare() }
         btn_settings.setOnClickListener { viewModel.handleToggleMenu() }
+
+        btn_result_up.setOnClickListener{
+            if(search_view.hasFocus()) search_view.clearFocus() //убирам фокус с строки поиска чтобы скрыть клавиатуру
+            viewModel.handleUpResult()
+        }
+
+        btn_result_down.setOnClickListener {
+            if(search_view.hasFocus()) search_view.clearFocus()
+            viewModel.handleDownResult()
+        }
+
+        btn_search_close.setOnClickListener {
+            viewModel.handleSearchMode(false)
+            invalidateOptionsMenu() //после вызова этого метода наш тулбар вернтся в начальное значение
+        }
     }
 
     private fun renderUi(data: ArticleState) {
+
+        bottombar.setSearchState(data.isSearch)
+
         //bind submenu state
         btn_settings.isChecked = data.isShowMenu
         if(data.isShowMenu) submenu.open() else submenu.close()
