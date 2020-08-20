@@ -34,6 +34,7 @@ import ru.skillbranch.skillarticles.ui.delegates.ObserveProp
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
+import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
@@ -327,6 +328,8 @@ class RootActivity : BaseActivity<ArticleViewModel>(),IArticleView{
             isFocusedSearch = savedState.getBoolean(::isFocusedSearch.name)
         }
     }
+
+
 
 
 }
