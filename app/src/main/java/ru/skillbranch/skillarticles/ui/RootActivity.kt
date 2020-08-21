@@ -161,9 +161,9 @@ class RootActivity : BaseActivity<ArticleViewModel>(),IArticleView{
             }
         })
 
-        searchView?.setOnQueryTextFocusChangeListener{ view, isSearch ->
-            viewModel.handleSearchMode(isSearch)
-        }
+//        searchView?.setOnQueryTextFocusChangeListener{ view, isSearch ->
+//            viewModel.handleSearchMode(isSearch)
+//        }
 
         return super.onCreateOptionsMenu(menu)
     }
@@ -212,11 +212,13 @@ class RootActivity : BaseActivity<ArticleViewModel>(),IArticleView{
 
         btn_result_up.setOnClickListener{
             if(search_view.hasFocus()) search_view.clearFocus() //убирам фокус с строки поиска чтобы скрыть клавиатуру
+            tv_text_content.requestFocus()
             viewModel.handleUpResult()
         }
 
         btn_result_down.setOnClickListener {
             if(search_view.hasFocus()) search_view.clearFocus()
+            tv_text_content.requestFocus()
             viewModel.handleDownResult()
         }
 
