@@ -20,11 +20,13 @@ class Bottombar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr),CoordinatorLayout.AttachedBehavior {
+) : ConstraintLayout(context, attrs, defStyleAttr), CoordinatorLayout.AttachedBehavior {
     var isSearchMode = false
-    override fun getBehavior(): CoordinatorLayout.Behavior<*>{
+
+    override fun getBehavior(): CoordinatorLayout.Behavior<Bottombar> {
         return BottombarBehavior()
     }
+
     init {
         View.inflate(context, R.layout.layout_bottombar, this)
         val materialBg = MaterialShapeDrawable.createWithElevationOverlay(context)
@@ -32,35 +34,37 @@ class Bottombar @JvmOverloads constructor(
         background = materialBg
     }
 
+    //save state
     override fun onSaveInstanceState(): Parcelable? {
-        val saveState = SavedState(super.onSaveInstanceState())
-        saveState.ssIsSearchMode = isSearchMode
-        return saveState
+        val savedState = SavedState(super.onSaveInstanceState())
+        savedState.ssIsSearchMode = isSearchMode
+        return savedState
     }
 
-    override fun onRestoreInstanceState(state: Parcelable?) {
+    //restore state
+    override fun onRestoreInstanceState(state: Parcelable) {
         super.onRestoreInstanceState(state)
         if (state is SavedState) {
-            isSearchMode =state.ssIsSearchMode
+            isSearchMode = state.ssIsSearchMode
             reveal.isVisible = isSearchMode
             group_bottom.isVisible = !isSearchMode
         }
     }
 
-    fun setSearchState(search:Boolean){
+    fun setSearchState(search: Boolean) {
         if (isSearchMode == search || !isAttachedToWindow) return
-        isSearchMode = true
+        isSearchMode = search
         if (isSearchMode) animateShowSearchPanel()
         else animateHideSearchPanel()
     }
 
     private fun animateHideSearchPanel() {
         group_bottom.isVisible = true
-        val endRadius = hypot(width.toFloat(), height/2f)
+        val endRadius = hypot(width.toFloat(), height / 2f)
         val va = ViewAnimationUtils.createCircularReveal(
             reveal,
             width,
-            height/2,
+            height / 2,
             endRadius,
             0f
         )
@@ -70,16 +74,15 @@ class Bottombar @JvmOverloads constructor(
 
     private fun animateShowSearchPanel() {
         reveal.isVisible = true
-        val endRadius = hypot(width.toFloat(), height/2f)
+        val endRadius = hypot(width.toFloat(), height / 2f)
         val va = ViewAnimationUtils.createCircularReveal(
             reveal,
             width,
-            height/2,
+            height / 2,
             0f,
             endRadius
-
         )
-        va.doOnEnd { reveal.isVisible = false }
+        va.doOnEnd { group_bottom.isVisible = false }
         va.start()
     }
 
@@ -90,14 +93,14 @@ class Bottombar @JvmOverloads constructor(
             btn_result_down.isEnabled = false
         }else{
             tv_search_result.text = "${position.inc()} of $searchCount"
-            btn_result_down.isEnabled = true
             btn_result_up.isEnabled = true
+            btn_result_down.isEnabled = true
         }
 
-        //lock button presses in min/max position
+        //lock button presses in min/max positions
         when(position){
             0 -> btn_result_up.isEnabled = false
-            searchCount-1 -> btn_result_down.isEnabled = false
+            searchCount -1 -> btn_result_down.isEnabled = false
         }
     }
 
@@ -122,6 +125,4 @@ class Bottombar @JvmOverloads constructor(
             override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
         }
     }
-
-
 }

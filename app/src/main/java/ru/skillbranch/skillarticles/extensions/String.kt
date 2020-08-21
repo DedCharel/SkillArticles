@@ -5,16 +5,19 @@ fun String?.indexesOf(substr: String, ignoreCase: Boolean = true):List<Int>{
     var repeatCycle = true
     var str = this
     var startIndex = 0
-    while (repeatCycle && !str.isNullOrEmpty()){
-        val index = str.indexOf(substr,startIndex,ignoreCase)
+    return if (!substr.isNullOrEmpty()) {
+        while (repeatCycle && !str.isNullOrEmpty()) {
+            val index = str.indexOf(substr, startIndex, ignoreCase)
 
-        if (index == -1) {
-            repeatCycle = false
-        }else{
-            result.add(index)
-            startIndex = index + substr.length
+            if (index == -1) {
+                repeatCycle = false
+            } else {
+                result.add(index)
+                startIndex = index + substr.length
+            }
         }
-    }
 
-    return result
+        result
+    }else listOf()
+
 }
