@@ -126,7 +126,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(),IArticleView{
 
         menuInflater.inflate(R.menu.menu_search, menu)
         val menuItem = menu?.findItem(R.id.action_search)
-        val searchView = menuItem?.actionView as SearchView
+        val searchView = menuItem?.actionView as? SearchView
          searchView?.queryHint = getString(R.string.article_search_placeholder)
 
         //restore searchView
@@ -149,7 +149,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(),IArticleView{
             }
 
         })
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String): Boolean {
                 viewModel.handleSearch(query)
                 return true
@@ -161,7 +161,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(),IArticleView{
             }
         })
 
-        searchView.setOnQueryTextFocusChangeListener{ view, isSearch ->
+        searchView?.setOnQueryTextFocusChangeListener{ view, isSearch ->
             viewModel.handleSearchMode(isSearch)
         }
 
