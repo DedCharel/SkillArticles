@@ -17,12 +17,12 @@ class PrefDelegate<T>(private val defaultValue: T) {
         return object : ReadWriteProperty<PrefManager, T?> {
             @Suppress("UNCHECKED_CAST")
             override fun getValue(thisRef: PrefManager, property: KProperty<*>): T? {
-                return when (value) {
-                    is Boolean -> thisRef.preferences.getBoolean(key, value as Boolean) as T
-                    is String -> thisRef.preferences.getString(key, value as String) as T
-                    is Float -> thisRef.preferences.getFloat(key, value as Float) as T
-                    is Int -> thisRef.preferences.getInt(key, value as Int) as T
-                    is Long -> thisRef.preferences.getLong(key, value as Long) as T
+                return when (defaultValue) {
+                    is Boolean -> thisRef.preferences.getBoolean(key, defaultValue as Boolean) as T
+                    is String -> thisRef.preferences.getString(key, defaultValue as String) as T
+                    is Float -> thisRef.preferences.getFloat(key, defaultValue as Float) as T
+                    is Int -> thisRef.preferences.getInt(key, defaultValue as Int) as T
+                    is Long -> thisRef.preferences.getLong(key, defaultValue as Long) as T
                     else -> throw IllegalStateException("Type of property  is not supported")
                 }
 
