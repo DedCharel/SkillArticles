@@ -15,9 +15,12 @@ class PrefDelegate<T>(private val defaultValue: T) {
     ): ReadWriteProperty<PrefManager, T?> {
         val key = property.name
         return object : ReadWriteProperty<PrefManager, T?> {
-            @Suppress("UNCHECKED_CAST")
+
+
             override fun getValue(thisRef: PrefManager, property: KProperty<*>): T? {
-                return when (defaultValue) {
+                if (value == null) {
+                    @Suppress("UNCHECKED_CAST")
+                value = when (defaultValue) {
                     is Boolean -> thisRef.preferences.getBoolean(key, defaultValue as Boolean) as T
                     is String -> thisRef.preferences.getString(key, defaultValue as String) as T
                     is Float -> thisRef.preferences.getFloat(key, defaultValue as Float) as T
@@ -25,13 +28,13 @@ class PrefDelegate<T>(private val defaultValue: T) {
                     is Long -> thisRef.preferences.getLong(key, defaultValue as Long) as T
                     else -> throw IllegalStateException("Type of property  is not supported")
                 }
-
-
+            }
+            return value
             }
 
-            @SuppressLint("CommitPrefEdits")
+
             override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T?) {
-                thisRef.preferences.edit().apply() {
+                with(thisRef.preferences.edit()) {
                     when (value) {
                         is Boolean -> putBoolean(key, value)
                         is String -> putString(key, value)
@@ -40,7 +43,9 @@ class PrefDelegate<T>(private val defaultValue: T) {
                         is Long -> putLong(key, value)
                         else -> throw IllegalStateException("Type of property  is not supported")
                     }
+                    apply()
                 }
+                this@PrefDelegate.value = value
             }
         }
     }
