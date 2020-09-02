@@ -20,15 +20,15 @@ class PrefDelegate<T>(private val defaultValue: T) {
             override fun getValue(thisRef: PrefManager, property: KProperty<*>): T? {
                 if (value == null) {
                     @Suppress("UNCHECKED_CAST")
-                value = when (defaultValue) {
-                    is Boolean -> thisRef.preferences.getBoolean(key, defaultValue as Boolean) as T
-                    is String -> thisRef.preferences.getString(key, defaultValue as String) as T
-                    is Float -> thisRef.preferences.getFloat(key, defaultValue as Float) as T
-                    is Int -> thisRef.preferences.getInt(key, defaultValue as Int) as T
-                    is Long -> thisRef.preferences.getLong(key, defaultValue as Long) as T
-                    else -> throw IllegalStateException("Type of property  is not supported")
+                    value = when (defaultValue) {
+                        is Boolean -> thisRef.preferences.getBoolean(key, defaultValue as Boolean) as T
+                        is String -> thisRef.preferences.getString(key, defaultValue as String) as T
+                        is Float -> thisRef.preferences.getFloat(key, defaultValue as Float) as T
+                        is Int -> thisRef.preferences.getInt(key, defaultValue as Int) as T
+                        is Long -> thisRef.preferences.getLong(key, defaultValue as Long) as T
+                        else -> throw IllegalStateException("Type of property  is not supported")
+                    }
                 }
-            }
             return value
             }
 
@@ -41,7 +41,7 @@ class PrefDelegate<T>(private val defaultValue: T) {
                         is Float -> putFloat(key, value)
                         is Int -> putInt(key, value)
                         is Long -> putLong(key, value)
-                        else -> throw IllegalStateException("Type of property  is not supported")
+                        else -> throw IllegalStateException("Only primitive type can be stored into Preference")
                     }
                     apply()
                 }
