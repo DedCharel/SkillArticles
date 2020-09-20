@@ -11,6 +11,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.attrValue
+//import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToPx
 import ru.skillbranch.skillarticles.markdown.spans.*
 
@@ -30,10 +31,86 @@ class MarkdownBuilder(context: Context) {
     private val linkIcon = context.getDrawable(R.drawable.ic_link_black_24dp)!!
 
     fun markdownToSpan(string: String): SpannedString {
-        //TODO implement me
+        val markdown = MarkdownParser.parse(string)
+        return buildSpannedString{
+            markdown.elements.forEach{buildElement(it, this)}
+        }
     }
 
     private fun buildElement(element: Element, builder: SpannableStringBuilder): CharSequence {
-        //TODO implement me
+        return builder.apply {
+            when(element){
+                is Element.Text -> append(element.text)
+                is Element.UnorderedListItem -> {
+                    inSpans(UnorderedListSpan(gap, bulletRadius, colorSecondary)){
+                        for (child in element.elements) {
+                            buildElement(child, builder)
+                        }
+                    }
+                }
+                is Element.Quote -> {
+                    inSpans(
+                        BlockquotesSpan(gap, strikeWidth, colorSecondary),
+                        StyleSpan(Typeface.ITALIC)
+                    ){
+                        for (child in element.elements) {
+                            buildElement(child, builder)
+                        }
+                    }
+                }
+
+                is Element.Header ->{
+                    inSpans(HeaderSpan(element.level, colorPrimary, colorDivider, headerMarginTop, headerMarginBottom)) {
+                        append(element.text)
+                    }
+                }
+
+                is Element.Italic -> {
+                    inSpans(StyleSpan(Typeface.ITALIC)){
+                        for (child in element.elements) {
+                            buildElement(child, builder)
+                        }
+                    }
+                }
+
+                is Element.Bold -> {
+                    inSpans(StyleSpan(Typeface.BOLD)){
+                        for (child in element.elements) {
+                            buildElement(child, builder)
+                        }
+                    }
+                }
+
+                is Element.Strike -> {
+                    inSpans(StrikethroughSpan()){
+                        for (child in element.elements) {
+                            buildElement(child, builder)
+                        }
+                    }
+                }
+
+                is Element.Rule ->{
+                    inSpans(HorizontalRuleSpan(ruleWidth, colorDivider)){
+                        append(element.text)
+                    }
+                }
+
+                is Element.InlineCode -> {
+                    inSpans(InlineCodeSpan(colorOnSurface, colorSurface, cornerRadius, gap)){
+                        append(element.text)
+                    }
+                }
+
+                is Element.Link -> {
+                    inSpans(IconLinkSpan(linkIcon, colorSecondary, gap, colorPrimary, strikeWidth),
+                    URLSpan(element.link)
+                    ){
+                        append(element.text)
+                    }
+                }
+
+                else -> append(element.text)
+            }
+        }
     }
 }
