@@ -40,10 +40,38 @@ object MarkdownParser {
      * clear markdown text to string without markdown characters
      */
     fun clear(string: String?): String? {
-        //TODO implement me
-        return null
+        return if (string != null) {
+            parse(string).elements
+                .fold(mutableListOf<Element>()){ acc, el -> //spread inner elements
+                    acc.also { it.addAll(el.spread()) }
+                }
+                //        .filterIsInstance<Element.Text>() //filter only expected instance
+                .filter { it.elements.isEmpty() }
+                .map { it.text.toString() }
+                .joinToString(separator = "") {it  }//transform to element text
+        }else{
+            null
+        }
+
 
     }
+
+    private fun Element.spread():List<Element>{
+        val elements = mutableListOf<Element>()
+        elements.add(this)
+        elements.addAll(this.elements.spread())
+        return elements
+    }
+
+    private fun List<Element>.spread():List<Element>{
+        val elements = mutableListOf<Element>()
+        if(this.isNotEmpty()) elements.addAll(
+            this.fold(mutableListOf()){acc, el -> acc.also { it.addAll(el.spread()) }}
+        )
+        return elements
+    }
+
+
 
     /**
      * find markdown elements in markdown text
