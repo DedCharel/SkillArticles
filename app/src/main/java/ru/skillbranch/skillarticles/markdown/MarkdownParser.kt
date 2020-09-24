@@ -17,13 +17,13 @@ object MarkdownParser {
     private const val RULE_GROUP = "(^[-_*]{3}$)"
     private const val INLINE_GROUP = "((?<!`)`[^`\\s].*?[^`\\s]?`(?!`))"
     private const val LINK_GROUP = "(\\[[^\\[\\]]*?]\\(.+?\\)|^\\[*?]\\(.*?\\))"
-    private const val BLOCK_CODE_GROUP = "" //TODO implement me
-    private const val ORDER_LIST_GROUP = "" //TODO implement me
+    private const val BLOCK_CODE_GROUP = "(^```[\\S\\s]+?```$)"
+    private const val ORDER_LIST_GROUP = "(^\\d+\\. .+$)"
 
     //result regex
     private const val MARKDOWN_GROUPS = "$UNORDERED_LIST_ITEM_GROUP|$HEADER_GROUP|$QUOTE_GROUP" +
-            "|$ITALIC_GROUP|$BOLD_GROUP|$STRIKE_GROUP|$RULE_GROUP|$INLINE_GROUP|$LINK_GROUP"
-    //|$BLOCK_CODE_GROUP|$ORDER_LIST_GROUP optionally
+            "|$ITALIC_GROUP|$BOLD_GROUP|$STRIKE_GROUP|$RULE_GROUP|$INLINE_GROUP|$LINK_GROUP" +
+            "|$BLOCK_CODE_GROUP|$ORDER_LIST_GROUP"
 
     private val elementsPattern by lazy { Pattern.compile(MARKDOWN_GROUPS, Pattern.MULTILINE) }
 
@@ -94,7 +94,7 @@ object MarkdownParser {
             var text: CharSequence
 
             //groups range for iterate by groups (1..9) or (1..11) optionally
-            val groups = 1..9
+            val groups = 1..11
             var group = -1
             for (gr in groups){
                 if (matcher.group(gr)!= null){
@@ -203,12 +203,39 @@ object MarkdownParser {
                 }
                 //10 -> BLOCK CODE - optionally
                 10 -> {
-                    //TODO implement me
+                    text = string.subSequence(startIndex.plus(3),endIndex.plus(-3))
+                    val list = text.lines()
+                    val size = list.size
+                    var type = Element.BlockCode.Type.SINGLE
+                        list.forEachIndexed{ index, value ->
+                            var text = value
+                            if (size != 1) {
+                                when(index){
+                                    0 -> {
+                                        type = Element.BlockCode.Type.START
+                                        text = "$value\n"}
+                                    size - 1 -> Element.BlockCode.Type.END
+                                    else -> {
+                                        type = Element.BlockCode.Type.MIDDLE
+                                        text = "$value\n"}
+                                }
+                            }
+                        val subelements = findElements(text)
+                        val element = Element.BlockCode(type = type, text = text, elements = subelements)
+                        parents.add(element)
+                    }
+                    lastStartIndex = endIndex
                 }
 
                 //11 -> NUMERIC LIST
                 11 -> {
-                    //TODO implement me
+                    val order = "^\\d+".toRegex().find(string.subSequence(startIndex, endIndex))!!.value
+                    //text without numbers
+                    text = string.subSequence(startIndex.plus(order.length+2),endIndex)
+                    val subelements = findElements(text)
+                    val element = Element.OrderedListItem(order = order, text =text, elements = subelements)
+                    parents.add(element)
+                    lastStartIndex = endIndex
                 }
             }
 
