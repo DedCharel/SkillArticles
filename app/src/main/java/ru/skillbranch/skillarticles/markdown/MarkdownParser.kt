@@ -229,9 +229,9 @@ object MarkdownParser {
 
                 //11 -> NUMERIC LIST
                 11 -> {
-                    val order = "^\\d+".toRegex().find(string.subSequence(startIndex, endIndex))!!.value
+                    val order = "^\\d+".toRegex().find(string.subSequence(startIndex, endIndex))!!.value + "."
                     //text without numbers
-                    text = string.subSequence(startIndex.plus(order.length+2),endIndex)
+                    text = string.subSequence(startIndex.plus(order.length+1),endIndex)
                     val subelements = findElements(text)
                     val element = Element.OrderedListItem(order = order, text =text, elements = subelements)
                     parents.add(element)
