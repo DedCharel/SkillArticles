@@ -18,7 +18,8 @@ object MarkdownParser {
     private const val INLINE_GROUP = "((?<!`)`[^`\\s].*?[^`\\s]?`(?!`))"
     private const val LINK_GROUP = "(\\[[^\\[\\]]*?]\\(.+?\\)|^\\[*?]\\(.*?\\))"
     private const val BLOCK_CODE_GROUP = "(^```[\\S\\s]+?```$)"
-    private const val ORDER_LIST_GROUP = "(^\\d+\\. .+$)"
+    private const val ORDER_LIST_GROUP = "(^\\d{1,2}\\.\\s.+?$)"
+    private const val IMAGE_GROUP = "(^!\\[[^\\[\\]]*?\\]\\(.*?\\)$)"
 
     //result regex
     private const val MARKDOWN_GROUPS = "$UNORDERED_LIST_ITEM_GROUP|$HEADER_GROUP|$QUOTE_GROUP" +
@@ -229,11 +230,17 @@ object MarkdownParser {
 
                 //11 -> NUMERIC LIST
                 11 -> {
-                    val order = "^\\d+".toRegex().find(string.subSequence(startIndex, endIndex))!!.value + "."
-                    //text without numbers
-                    text = string.subSequence(startIndex.plus(order.length+1),endIndex)
-                    val subelements = findElements(text)
-                    val element = Element.OrderedListItem(order = order, text =text, elements = subelements)
+                    val reg = "(^\\d{1,2}.)".toRegex().find(string.subSequence(startIndex, endIndex))!!
+                    val order = reg!!.value
+
+                    text = string.subSequence(startIndex.plus(order.length.inc()),endIndex).toString()
+
+                    val subs = findElements(text)
+                    val element =
+                        Element.OrderedListItem(
+                            order,
+                            text,
+                            subs)
                     parents.add(element)
                     lastStartIndex = endIndex
                 }
