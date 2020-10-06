@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown
+package ru.skillbranch.skillarticles.data.repositories
 
 import java.util.regex.Pattern
 
@@ -88,7 +88,7 @@ object MarkdownParser {
 
             //if something is found then everything before -TEXT
             if (lastStartIndex < startIndex){
-                parents.add(Element.Text(string.subSequence(lastStartIndex,startIndex)))
+                parents.add(Element.Text(string.subSequence(lastStartIndex, startIndex)))
             }
 
             //found text
@@ -222,7 +222,8 @@ object MarkdownParser {
                                 }
                             }
                         val subelements = findElements(text)
-                        val element = Element.BlockCode(type = type, text = text, elements = subelements)
+                        val element =
+                            Element.BlockCode(type = type, text = text, elements = subelements)
                         parents.add(element)
                     }
                     lastStartIndex = endIndex
@@ -240,7 +241,8 @@ object MarkdownParser {
                         Element.OrderedListItem(
                             order,
                             text,
-                            subs)
+                            subs
+                        )
                     parents.add(element)
                     lastStartIndex = endIndex
                 }
