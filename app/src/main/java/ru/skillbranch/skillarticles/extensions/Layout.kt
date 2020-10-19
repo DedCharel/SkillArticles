@@ -3,7 +3,7 @@ package ru.skillbranch.skillarticles.extensions
 import android.text.Layout
 
 fun Layout.getLineHeight(line: Int): Int {
-    return getLineTop(line + 1) - getLineTop(line)
+    return getLineTop(line.inc()) - getLineTop(line)
 }
 
 fun Layout.getLineTopWithoutPadding(line: Int): Int {
@@ -14,9 +14,9 @@ fun Layout.getLineTopWithoutPadding(line: Int): Int {
     return lineTop
 }
 
-fun Layout.getLayoutBottomWithoutPadding(line: Int): Int {
+fun Layout.getLineBottomWithoutPadding(line: Int): Int {
     var lineBottom = getLineBottomWithoutSpacing(line)
-    if (line == lineCount - 1){
+    if (line == lineCount.dec()){
         lineBottom -=bottomPadding
     }
     return lineBottom
@@ -24,7 +24,7 @@ fun Layout.getLayoutBottomWithoutPadding(line: Int): Int {
 
 fun Layout.getLineBottomWithoutSpacing(line: Int): Int {
     val lineBottom = getLineBottom(line)
-    val isLastLine = line == lineCount - 1
+    val isLastLine = line == lineCount.dec()
     val hasLineSpacing = spacingAdd != 0f
 
     return if (!hasLineSpacing || isLastLine) {

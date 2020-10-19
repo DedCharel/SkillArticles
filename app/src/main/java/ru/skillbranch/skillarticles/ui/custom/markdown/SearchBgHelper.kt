@@ -11,9 +11,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.ColorUtils
 import androidx.core.text.getSpans
 import ru.skillbranch.skillarticles.R
-import ru.skillbranch.skillarticles.extensions.attrValue
-import ru.skillbranch.skillarticles.extensions.dpToIntPx
-import ru.skillbranch.skillarticles.extensions.dpToPx
+import ru.skillbranch.skillarticles.extensions.*
 import ru.skillbranch.skillarticles.ui.custom.spans.HeaderSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
@@ -168,13 +166,11 @@ abstract class SearchBgRender(
     )
 
     fun getLineTop(layout: Layout, line: Int): Int {
-        //TODO implement me
-        return 0
+        return layout.getLineTopWithoutPadding(line)
     }
 
     fun getLineBottom(layout: Layout, line: Int): Int {
-        //TODO implement me
-        return 0
+        return layout.getLineBottomWithoutPadding(line)
     }
 }
 
