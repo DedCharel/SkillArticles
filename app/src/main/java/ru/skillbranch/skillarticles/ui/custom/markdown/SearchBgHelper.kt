@@ -15,6 +15,7 @@ import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.dpToPx
 import ru.skillbranch.skillarticles.ui.custom.spans.HeaderSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -114,6 +115,24 @@ class SearchBgHelper(
             spanEnd = text.getSpanEnd(it)
             startLine = layout.getLineForOffset(spanStart)
             endLine = layout.getLineForOffset(spanEnd)
+
+            if (it is SearchFocusSpan) {
+                //if search focus invoke listener for focus
+                focusListener?.invoke(layout.getLineTop(startLine), layout.getLineBottom(startLine))
+            }
+
+            headerSpans = text.getSpans(spanStart, spanEnd, HeaderSpan::class.java)
+
+            topExtraPadding = 0
+            bottomExtraPadding = 0
+
+            if (headerSpans.isNotEmpty()) {
+                topExtraPadding =
+                    if (spanStart in headerSpans[0].firstLineBounds || spanEnd in headerSpans[0].firstLineBounds) headerSpans[0].topExtraPadding else 0
+                bottomExtraPadding =
+                    if (spanStart in headerSpans[0].lastLineBounds || spanEnd in headerSpans[0].lastLineBounds) headerSpans[0].bottomExtraPadding else 0
+
+            }
 
             startOffset = layout.getPrimaryHorizontal(spanStart).toInt() //отступ от начала строки
             endOffset = layout.getPrimaryHorizontal(spanEnd).toInt() //отступ от конца строки
