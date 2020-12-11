@@ -17,7 +17,7 @@ import ru.skillbranch.skillarticles.extensions.attrValue
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 class MarkdownTextView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet,
+    attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ): androidx.appcompat.widget.AppCompatTextView(context, attrs, defStyleAttr){
 
@@ -35,9 +35,7 @@ class MarkdownTextView @JvmOverloads constructor(
 //    val color = context.attrValue(R.attr.colorOnBackground) //colorOnBackground
 //    private val focusRect = Rect()
 
-    private val searchBgHelper = SearchBgHelper(context) { top, bottom ->
-        //TODO implement me
-    }
+    private val searchBgHelper = SearchBgHelper(context)
 
 
     override fun onDraw(canvas: Canvas) {

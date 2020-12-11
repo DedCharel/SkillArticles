@@ -2,7 +2,8 @@ package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Color
 import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
 
-open class SearchSpan() : BackgroundColorSpan(Color.WHITE) {
+open class SearchSpan : ForegroundColorSpan(Color.WHITE) {
 
 }
