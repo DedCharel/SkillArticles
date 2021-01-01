@@ -36,52 +36,63 @@ class SearchBgHelper(
     private val secondaryColor: Int = context.attrValue(R.attr.colorSecondary)
     private val alphaColor: Int = ColorUtils.setAlphaComponent(secondaryColor,160)
 
-    private val drawable: Drawable by lazy {
-        GradientDrawable().apply {
+    val drawable: Drawable by lazy {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadii = FloatArray(8).apply { fill(radius,0, size) }
+            cornerRadii = FloatArray(8).apply { fill(radius, 0, size) }
             color = ColorStateList.valueOf(alphaColor)
-            setStroke(borderWidth,secondaryColor)
+            setStroke(borderWidth, secondaryColor)
         }
     }
 
     private val drawableLeft: Drawable by lazy {
-        GradientDrawable().apply {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = floatArrayOf(
-                radius, radius, //Top left radius in px
-                0f, 0f, //Top right radius in px
-                0f, 0f, //Bottom radius in px
-                radius, radius //Bottom left radius in px
+                radius, radius,  // Top left radius in px
+                0f, 0f,   // Top right radius in px
+                0f, 0f,     // Bottom right radius in px
+                radius, radius      // Bottom left radius in px
             )
             color = ColorStateList.valueOf(alphaColor)
-            setStroke(borderWidth,secondaryColor)
+            setStroke(borderWidth, secondaryColor)
         }
     }
     private val drawableMiddle: Drawable by lazy {
-        GradientDrawable().apply {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             color = ColorStateList.valueOf(alphaColor)
-            setStroke(borderWidth,secondaryColor)
+            setStroke(borderWidth, secondaryColor)
         }
     }
     private val drawableRight: Drawable by lazy {
-        GradientDrawable().apply {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = floatArrayOf(
-                0f, 0f, //Top left radius in px
-                radius, radius, //Top right radius in px
-                radius, radius, //Bottom radius in px
-                0f, 0f //Bottom left radius in px
+                0f, 0f,  // Top left radius in px
+                radius, radius,   // Top right radius in px
+                radius, radius,     // Bottom right radius in px
+                0f, 0f      // Bottom left radius in px
             )
             color = ColorStateList.valueOf(alphaColor)
-            setStroke(borderWidth,secondaryColor)
+            setStroke(borderWidth, secondaryColor)
         }
     }
 
     private lateinit var render: SearchBgRender
-    private val singleLineRender: SearchBgRender  = SingleLineRender( padding, drawable)
-    private val multiLineRender: SearchBgRender = MultiLineRender(padding, drawableLeft, drawableMiddle, drawableRight)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val singleLineRender: SearchBgRender =
+        SingleLineRender(
+            padding, drawable
+        )
+
+    private val multiLineRender: SearchBgRender =
+        MultiLineRender(
+            padding,
+            drawableLeft,
+            drawableMiddle,
+            drawableRight
+        )
 
 
     private lateinit var spans: Array<out SearchSpan>
@@ -97,6 +108,7 @@ class SearchBgHelper(
     private var bottomExtraPadding = 0
 
     fun draw(canvas: Canvas, text: Spanned, layout: Layout) {
+//        println(drawable)
         spans = text.getSpans()
         spans.forEach {
             spanStart = text.getSpanStart(it)
@@ -116,16 +128,25 @@ class SearchBgHelper(
 
             if (headerSpans.isNotEmpty()) {
                 topExtraPadding =
-                    if (spanStart in headerSpans[0].firstLineBounds || spanEnd in headerSpans[0].firstLineBounds) headerSpans[0].topExtraPadding else 0
-                bottomExtraPadding =
-                    if (spanStart in headerSpans[0].lastLineBounds || spanEnd in headerSpans[0].lastLineBounds) headerSpans[0].bottomExtraPadding else 0
+                    if (spanStart in headerSpans[0].firstLineBounds
+                        || spanEnd in headerSpans[0].firstLineBounds
+                    ) headerSpans[0].topExtraPadding else 0
 
+                bottomExtraPadding =
+                    if (spanStart in headerSpans[0].lastLineBounds
+                        || spanEnd in headerSpans[0].lastLineBounds
+                    ) headerSpans[0].bottomExtraPadding else 0
             }
 
-            startOffset = layout.getPrimaryHorizontal(spanStart).toInt() //отступ от начала строки
-            endOffset = layout.getPrimaryHorizontal(spanEnd).toInt() //отступ от конца строки
 
+            startOffset = layout.getPrimaryHorizontal(spanStart).toInt()
+            endOffset = layout.getPrimaryHorizontal(spanEnd).toInt()
+            println(singleLineRender)
+            println(multiLineRender)
             render = if (startLine == endLine) singleLineRender else multiLineRender
+            println(render)
+
+//            println("draw $drawable")
             render.draw(
                 canvas,
                 layout,
@@ -136,127 +157,126 @@ class SearchBgHelper(
                 topExtraPadding,
                 bottomExtraPadding
             )
-
+        }
     }
 }
 
 
-abstract class SearchBgRender(
-    val padding: Int
-) {
-    abstract fun draw(
-        canvas: Canvas,
-        layout: Layout,
-        startLine: Int,
-        endLine: Int,
-        startOffset: Int,
-        endOffset: Int,
-        topExtraPadding: Int = 0,
-        bottomExtraPadding: Int = 0
-    )
-
-    fun getLineTop(layout: Layout, line: Int): Int {
-        return layout.getLineTopWithoutPadding(line)
-    }
-
-    fun getLineBottom(layout: Layout, line: Int): Int {
-        return layout.getLineBottomWithoutPadding(line)
-    }
-}
-
-class SingleLineRender(
-    padding: Int,
-    val drawable: Drawable
-) : SearchBgRender(padding) {
-    private  var lineTop: Int = 0
-    private var lineBottom: Int  = 0
-
-
-    override fun draw(
-        canvas: Canvas,
-        layout: Layout,
-        startLine: Int,
-        endLine: Int,
-        startOffset: Int,
-        endOffset: Int,
-        topExtraPadding: Int,
-        bottomExtraPadding: Int
+    abstract class SearchBgRender(
+        val padding: Int
     ) {
-        lineTop = getLineTop(layout, startLine) + topExtraPadding
-        lineBottom = getLineBottom(layout, startLine) - bottomExtraPadding
-        drawable.setBounds(startOffset - padding, lineTop, endOffset + padding, lineBottom)
-        drawable.draw(canvas)
-    }
+        abstract fun draw(
+            canvas: Canvas,
+            layout: Layout,
+            startLine: Int,
+            endLine: Int,
+            startOffset: Int,
+            endOffset: Int,
+            topExtraPadding: Int = 0,
+            bottomExtraPadding: Int = 0
+        )
 
-}
-
-class MultiLineRender(
-    padding: Int,
-    private val drawableLeft: Drawable,
-    private val drawableMiddle: Drawable,
-    private val drawableRight: Drawable
-) : SearchBgRender(padding) {
-    private var lineTop: Int = 0
-    private var lineBottom: Int = 0
-    private var lineEndOffset: Int = 0
-    private var lineStartOffset: Int = 0
-
-    override fun draw(
-        canvas: Canvas,
-        layout: Layout,
-        startLine: Int,
-        endLine: Int,
-        startOffset: Int,
-        endOffset: Int,
-        topExtraPadding: Int,
-        bottomExtraPadding: Int
-    ) {
-        //draw first line
-        lineEndOffset = (layout.getLineRight(startLine) + padding).toInt()
-        lineTop = getLineTop(layout, startLine) + topExtraPadding
-        lineBottom = getLineBottom(layout, startLine)
-        drawStart(canvas, startOffset - padding, lineTop, lineEndOffset, lineBottom)
-
-        //draw middle line
-        for (line in startLine.inc() until endLine) {
-            lineTop = getLineTop(layout, line)
-            lineBottom = getLineBottom(layout, line)
-            drawableMiddle.setBounds(
-                layout.getLineLeft(line).toInt() - padding,
-                lineTop,
-                layout.getLineRight(line).toInt() + padding,
-                lineBottom
-            )
-            drawableMiddle.draw(canvas)
+        fun getLineTop(layout: Layout, line: Int): Int {
+            return layout.getLineTopWithoutPadding(line)
         }
 
-        //draw last line
-        lineStartOffset = (layout.getLineLeft(endLine) - padding).toInt()
-        lineTop = getLineTop(layout, endLine)
-        lineBottom = getLineBottom(layout, endLine) - bottomExtraPadding
-        drawEnd(canvas, lineStartOffset, lineTop, endOffset + padding, lineBottom)
+        fun getLineBottom(layout: Layout, line: Int): Int {
+            return layout.getLineBottomWithoutPadding(line)
+        }
     }
 
-    private fun drawStart(
-        canvas: Canvas,
-        start: Int,
-        top: Int,
-        end: Int,
-        bottom: Int
-    ) {
-        drawableLeft.setBounds(start, top, end, bottom)
-        drawableLeft.draw(canvas)
+    class SingleLineRender(
+        padding: Int,
+        val drawable: Drawable
+    ) : SearchBgRender(padding) {
+
+        private var lineTop: Int = 0
+        private var lineBottom: Int = 0
+
+        override fun draw(
+            canvas: Canvas,
+            layout: Layout,
+            startLine: Int,
+            endLine: Int,
+            startOffset: Int,
+            endOffset: Int,
+            topExtraPadding: Int,
+            bottomExtraPadding: Int
+        ) {
+            lineTop = getLineTop(layout, startLine) + topExtraPadding
+            lineBottom = getLineBottom(layout, startLine) - bottomExtraPadding
+            drawable.setBounds(startOffset - padding, lineTop, endOffset + padding, lineBottom)
+//        drawable.setBounds(startOffset, lineTop, endOffset + padding, lineBottom)
+            drawable.draw(canvas)
+        }
     }
 
-    private fun drawEnd(
-        canvas: Canvas,
-        start: Int,
-        top: Int,
-        end: Int,
-        bottom: Int
-    ) {
-        drawableRight.setBounds(start, top, end, bottom)
-        drawableRight.draw(canvas)
-    }
-}
+
+    class MultiLineRender(
+        padding: Int,
+        private val drawableLeft: Drawable,
+        private val drawableMiddle: Drawable,
+        private val drawableRight: Drawable
+    ) : SearchBgRender(padding) {
+        private var lineTop: Int = 0
+        private var lineBottom: Int = 0
+        private var lineEndOffset: Int = 0
+        private var lineStartOffset: Int = 0
+
+        override fun draw(
+            canvas: Canvas,
+            layout: Layout,
+            startLine: Int,
+            endLine: Int,
+            startOffset: Int,
+            endOffset: Int,
+            topExtraPadding: Int,
+            bottomExtraPadding: Int
+        ) {
+            lineEndOffset = (layout.getLineRight(startLine) + padding).toInt()
+            lineTop = getLineTop(layout, startLine) + topExtraPadding
+            lineBottom = getLineBottom(layout, startLine)
+            drawStart(canvas, startOffset - padding, lineTop, lineEndOffset, lineBottom)
+
+            //draw middle line
+            for (line in startLine.inc() until endLine) {
+                lineTop = getLineTop(layout, line)
+                lineBottom = getLineBottom(layout, line)
+                drawableMiddle.setBounds(
+                    layout.getLineLeft(line).toInt() - padding,
+                    lineTop,
+                    layout.getLineRight(line).toInt() + padding,
+                    lineBottom
+                )
+                drawableMiddle.draw(canvas)
+            }
+
+            lineStartOffset = (layout.getLineLeft(endLine) - padding).toInt()
+            lineTop = getLineTop(layout, endLine)
+            lineBottom = getLineBottom(layout, endLine) - bottomExtraPadding
+            drawEnd(canvas, lineStartOffset, lineTop, endOffset + padding, lineBottom)
+        }
+
+
+        private fun drawStart(
+            canvas: Canvas,
+            start: Int,
+            top: Int,
+            end: Int,
+            bottom: Int
+        ) {
+            drawableLeft.setBounds(start, top, end, bottom)
+            drawableLeft.draw(canvas)
+        }
+
+        private fun drawEnd(
+            canvas: Canvas,
+            start: Int,
+            top: Int,
+            end: Int,
+            bottom: Int
+        ) {
+            drawableRight.setBounds(start, top, end, bottom)
+            drawableRight.draw(canvas)
+        }
 }
