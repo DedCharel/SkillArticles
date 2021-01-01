@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
@@ -103,12 +104,10 @@ class HeaderSpan constructor(
         lineTop: Int, lineBaseline: Int, lineBottom: Int, text: CharSequence?, lineStart: Int,
         lineEnd: Int, isFirstLine: Boolean, layout: Layout?
     ) {
-        // For 1 or 2 level and last line
-        if ((level == 1 || level == 2) && (text as Spanned).getSpanEnd(this) == lineEnd){
+        if ((level == 1 || level == 2) && (text as Spanned).getSpanEnd(this) == lineEnd) { // Для заголовков 1-2 уровня и последней строки - рисуем отделяющую линию
             paint.forLine {
-                val lh = (paint.descent() - paint.ascent()) * sizes.getOrElse(level) {1f}
+                val lh = (paint.descent() - paint.ascent()) * sizes.getOrElse(level) { 1f }
                 val lineOffset = lineBaseline + lh * linePadding
-
                 canvas.drawLine(
                     0f,
                     lineOffset,
@@ -118,6 +117,7 @@ class HeaderSpan constructor(
                 )
             }
         }
+        //canvas.drawFontLines(lineTop, lineBottom, lineBaseline, paint)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
@@ -139,5 +139,16 @@ class HeaderSpan constructor(
         color = oldColor
         style = oldStyle
         strokeWidth = oldWidth
+    }
+
+    private fun Canvas.drawFontLines(
+        top: Int,
+        bottom: Int,
+        lineBaseline: Int,
+        paint: Paint
+    ){
+        drawLine(0f, top + 0f, width + 0f, top + 0f, Paint().apply { color = Color.BLUE })
+        drawLine(0f, bottom + 0f, width + 0f, bottom + 0f, Paint().apply { color = Color.GREEN })
+        drawLine(0f, lineBaseline + 0f, width + 0f, lineBaseline + 0f, Paint().apply { color = Color.RED })
     }
 }

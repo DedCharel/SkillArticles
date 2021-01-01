@@ -21,7 +21,7 @@ interface IMarkdownView {
         try {
             offsetResult.forEach { (start, end) ->
                 spannableContent.setSpan(
-                    SearchSpan(Color.GREEN, Color.GREEN),
+                    SearchSpan(),
                     start,
                     end,
                     SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -38,7 +38,7 @@ interface IMarkdownView {
     ) {
         spannableContent.getSpans<SearchFocusSpan>().forEach { spannableContent.removeSpan(it) }
         spannableContent.setSpan(
-            SearchFocusSpan(Color.GREEN, Color.GREEN),
+            SearchFocusSpan(),
             searchPosition.first.minus(offset),
             searchPosition.second.minus(offset),
             SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
