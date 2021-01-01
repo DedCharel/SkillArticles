@@ -13,6 +13,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
@@ -98,7 +99,7 @@ class MarkdownImageView private constructor(
             gravity = Gravity.CENTER
             typeface = Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL)
             setPaddingOptionally(left = titlePadding, right = titlePadding)
-            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+       //     layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         }
         addView(tv_title)
     }
@@ -130,6 +131,7 @@ class MarkdownImageView private constructor(
                 setBackgroundColor(ColorUtils.setAlphaComponent(colorSurface,160))
                 gravity = Gravity.CENTER
                 textSize = fontSize
+                setPadding(titleTopMargin)
                 isVisible = false
             }
         }
@@ -147,10 +149,6 @@ class MarkdownImageView private constructor(
     public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var usedHeight = 0
         val width = View.getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
-
-//        measureChild(iv_image, widthMeasureSpec,heightMeasureSpec)
-//        measureChild(tv_title, widthMeasureSpec,heightMeasureSpec)
-//        if (tv_alt != null) measureChild(tv_alt, widthMeasureSpec, heightMeasureSpec)
 
         //create measureSpec for children EXACTLY
         // all children width == parent width (constrain parent width)
