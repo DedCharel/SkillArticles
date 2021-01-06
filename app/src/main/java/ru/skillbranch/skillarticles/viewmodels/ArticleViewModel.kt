@@ -1,14 +1,13 @@
 package ru.skillbranch.skillarticles.viewmodels
 
-import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
-import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
 import ru.skillbranch.skillarticles.data.repositories.clearContent
 import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
@@ -174,7 +173,7 @@ data class ArticleState(
     val reviews: List<Any> = emptyList() //комментарии
 
 ):IViewModelState{
-    override fun save(outState: Bundle) {
+    override fun save(outState: SavedStateHandle) {
         outState.putAll(
             bundleOf(
                 "isSearch" to isSearch,
@@ -185,7 +184,7 @@ data class ArticleState(
         )
     }
 
-    override fun restore(savesState: Bundle): ArticleState {
+    override fun restore(savesState: SavedStateHandle): ArticleState {
         return copy(
             isSearch = savesState["isSearch"] as Boolean,
             searchQuery = savesState["searchQuery"] as? String,

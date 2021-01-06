@@ -187,9 +187,17 @@ class MarkdownContentView @JvmOverloads constructor(
     override fun onRestoreInstanceState(state: Parcelable) {
         super.onRestoreInstanceState(state)
         if (state is SavedState) layoutManager = state.layout
+
+        //TODO temp solution? remove this in fragment
+//        children.filter { it !is MarkdownTextView }
+//            .forEachIndexed{index, it -> layoutManager.attachToParent(it,index)}
         }
 
     override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>?) {
+        //TODO temp solution? remove this in fragment
+//        children.filter { it !is MarkdownTextView }
+//            .forEachIndexed{index, it -> layoutManager.attachToParent(it,index)}
+
         //save children manual without markdown text view
         children.filter { it !is MarkdownTextView }
             .forEach { it.saveHierarchyState(layoutManager.container) }
