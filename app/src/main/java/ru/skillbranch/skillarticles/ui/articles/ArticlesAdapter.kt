@@ -15,7 +15,6 @@ import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.ArticleItemData
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.format
-import ru.skillbranch.skillarticles.ui.custom.ArticleItemView
 
 class ArticlesAdapter(private val listener: (ArticleItemData) -> Unit) : ListAdapter<ArticleItemData, ArticleVH>(ArticleDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleVH {
