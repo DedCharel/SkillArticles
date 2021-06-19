@@ -6,6 +6,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.TypedValue
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 
 fun Context.dpToPx(dp: Int): Float {
     return TypedValue.applyDimension(
@@ -22,6 +24,11 @@ fun Context.dpToIntPx(dp: Int): Int {
         dp.toFloat(),
         this.resources.displayMetrics
     ).toInt()
+}
+
+fun Context.showKeyboard(view: View){
+    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT)
 }
 
 val Context.isNetworkAvailable: Boolean
