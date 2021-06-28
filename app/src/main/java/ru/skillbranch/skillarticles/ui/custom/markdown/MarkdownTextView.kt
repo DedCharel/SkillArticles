@@ -41,7 +41,7 @@ class MarkdownTextView constructor(
             focusRect.set(0, top - context.dpToIntPx(56), width, bottom + context.dpToIntPx(56))
 
             // show rect on view with animation
-            requestRectangleOnScreen(focusRect)
+            requestRectangleOnScreen(focusRect, false)
         }
         setTextColor(color)
         textSize = fontSize
@@ -50,7 +50,7 @@ class MarkdownTextView constructor(
 
     override fun onDraw(canvas: Canvas) {
         if (text is Spanned && layout != null) {
-            canvas.withTranslation {
+            canvas.withTranslation(totalPaddingStart.toFloat(), totalPaddingTop.toFloat()) {
                 searchBgHelper.draw(canvas, text as Spanned, layout)
             }
         }
